@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wave Neurotechnology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #1247B5;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── INTRO ── */
+    #intro {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: opacity 0.8s ease;
+    }
+
+    #intro.fade-away { opacity: 0; pointer-events: none; }
+
+    #intro-bg {
+      position: absolute;
+      inset: 0;
+      background: #1247B5;
+      filter: blur(18px);
+      transform: scale(1.05);
+    }
+
+    #intro-scrim {
+      position: absolute;
+      inset: 0;
+      background: rgba(6, 22, 70, 0.72);
+    }
+
+    #begin-btn {
+      position: relative;
+      z-index: 2;
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.85);
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 300;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      padding: 18px 52px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
+      animation: beginPulse 3s ease-in-out infinite;
+    }
+
+    #begin-btn:hover {
+      color: #fff;
+      border-color: rgba(255,255,255,0.95);
+      box-shadow: 0 0 24px rgba(255,255,255,0.25), 0 0 60px rgba(180,210,255,0.15);
+      animation: none;
+    }
+
+    @keyframes beginPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); }
+      50%       { box-shadow: 0 0 20px rgba(255,255,255,0.2), 0 0 40px rgba(180,210,255,0.1); border-color: rgba(255,255,255,0.65); }
+    }
+
+    /* ── WAVE INTRO OVERLAY ── */
+    #wave-intro {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      pointer-events: none;
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1247B5;
+      transition: opacity 0.3s ease;
+    }
+
+    #wave-intro.active  { opacity: 1; }
+    #wave-intro.fade-out { opacity: 0; transition: opacity 1.2s ease; }
+
+    #wave-svg {
+      width: min(320px, 55vw);
+      height: auto;
+      opacity: 0;
+    }
+
+    /* ── MAIN PAGE ── */
+    #page-wrap {
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    #page-wrap.visible { opacity: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(18, 71, 181, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      transition: opacity 0.6s ease;
+    }
+
+    nav.hidden { opacity: 0; pointer-events: none; }
+
+    .nav-logo { height: 32px; width: auto; justify-self: center; }
+
+    .nav-left {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .nav-right {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .nav-left a, .nav-right a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-left a:hover, .nav-right a:hover { color: #fff; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 28px;
+      transition: opacity 0.5s ease;
+    }
+
+    .hero.fade-out { opacity: 0; pointer-events: none; }
+
+    .hero-logo { width: min(520px, 75vw); height: auto; }
+
+    /* ── TAGLINE ── */
+    .hero-tagline {
+      font-size: clamp(0.95rem, 2vw, 1.15rem);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.55);
+      margin-top: -8px;
+      cursor: pointer;
+      text-shadow: 0 0 12px rgba(255,255,255,0.25), 0 0 30px rgba(180,210,255,0.15);
+      animation: taglinePulse 3s ease-in-out infinite;
+      transition: color 0.3s, text-shadow 0.3s;
+      user-select: none;
+    }
+
+    .hero-tagline:hover {
+      color: rgba(255,255,255,0.95);
+      text-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 30px rgba(180,210,255,0.7), 0 0 60px rgba(150,190,255,0.4);
+      animation: none;
+    }
+
+    @keyframes taglinePulse {
+      0%, 100% { color: rgba(255,255,255,0.55); text-shadow: 0 0 12px rgba(255,255,255,0.2), 0 0 30px rgba(180,210,255,0.1); }
+      50%       { color: rgba(255,255,255,0.8);  text-shadow: 0 0 16px rgba(255,255,255,0.5), 0 0 40px rgba(180,210,255,0.3); }
+    }
+
+    /* ── SOCIAL ROW ── */
+    .social-row { display: flex; gap: 20px; align-items: center; }
+
+    .social-link {
+      width: 44px; height: 44px;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.4s;
+    }
+
+    .social-link:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.7);
+      color: #fff;
+    }
+
+    .social-link svg { width: 18px; height: 18px; fill: currentColor; }
+    .social-link .stroke-icon { fill: none; stroke: currentColor; stroke-width: 1.8px; }
+
+    .social-link.email-glow {
+      border-color: rgba(255,255,255,0.9);
+      color: #fff;
+      animation: emailPulse 2.5s ease-in-out infinite;
+      animation-delay: 0s;
+    }
+
+    /* glow builds from nothing */
+    @keyframes emailGlowIn {
+      from { box-shadow: none; border-color: rgba(255,255,255,0.35); }
+      to   { box-shadow: 0 0 16px rgba(255,255,255,0.8), 0 0 40px rgba(180,210,255,0.5); border-color: rgba(255,255,255,1); }
+    }
+
+    @keyframes emailPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(255,255,255,0.4), 0 0 20px rgba(180,210,255,0.2); border-color: rgba(255,255,255,0.6); }
+      50%       { box-shadow: 0 0 16px rgba(255,255,255,0.8), 0 0 40px rgba(180,210,255,0.5); border-color: rgba(255,255,255,1); }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem 40px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.8rem;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.35);
+      transition: opacity 0.5s ease;
+    }
+
+    footer.fade-out { opacity: 0; }
+
+    /* ── DEMO OVERLAY ── */
+    #demo-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.7s ease;
+    }
+
+    #demo-overlay.visible { opacity: 1; pointer-events: all; }
+
+    .demo-word {
+      font-size: 8vw;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #fff;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: scale(0.2);
+      transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-bottom: 3rem;
+      text-shadow: 0 0 40px rgba(255,255,255,0.3);
+    }
+
+    .demo-word.expanded { opacity: 1; transform: scale(1); }
+
+    .demo-video-wrap {
+      width: min(860px, 88vw);
+      aspect-ratio: 16/9;
+      background: #111;
+      border-radius: 12px;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s 0.5s ease, transform 0.5s 0.5s ease;
+    }
+
+    .demo-video-wrap.visible { opacity: 1; transform: translateY(0); }
+    .demo-video-wrap iframe { width: 100%; height: 100%; border: none; }
+
+    .video-placeholder-inner {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.25);
+      font-size: 0.9rem; font-weight: 300; letter-spacing: 0.08em;
+    }
+
+    .demo-close {
+      position: absolute;
+      top: 28px; right: 36px;
+      background: none;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.6);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.8rem; font-weight: 300;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 100px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.4s 0.8s ease, color 0.2s, border-color 0.2s;
+    }
+
+    #demo-overlay.visible .demo-close { opacity: 1; }
+    .demo-close:hover { color: #fff; border-color: rgba(255,255,255,0.8); }
+  </style>
+</head>
+<body>
+
+  <!-- ── INTRO ── -->
+  <div id="intro">
+    <div id="intro-bg"></div>
+    <div id="intro-scrim"></div>
+    <button id="begin-btn">Begin</button>
+  </div>
+
+  <!-- ── WAVE DRAW ANIMATION ── -->
+  <div id="wave-intro">
+    <svg id="wave-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="reveal-clip">
+          <!-- starts fully left (nothing visible), JS sweeps it right -->
+          <rect id="reveal-rect" x="-500" y="0" width="500" height="500"/>
+        </clipPath>
+      </defs>
+      <!-- Exact paths from your SVG source file, white fill, no background rect -->
+      <g clip-path="url(#reveal-clip)">
+        <path fill="white" d="M388.8,325.1c-46.6,13.2-91.9-31.9-87.3-79.3,1.4-14.8,8.2-28.2,17.9-39.1-10.9,6.9-21.4,15.3-31.9,25.6-17.8,17-33.9,35.9-52.6,52.2-39.8,36.5-91.5,50.7-144.3,40.7,86.4-15.8,107.5-39.6,166.3-100.3,17.3-16.7,36.6-31.7,59.1-41.1,25.6-10.9,53.7-13.9,80.9-10.8.1,0,.2,0,.4,0,4.1.5,8.1,1.1,12.1,1.8-19.7,5.5-37.1,15.3-52.3,28.1-13.9,12.1-26.7,26.8-28.7,45.3-2,36.5,25.5,67.5,60.3,77Z"/>
+        <path fill="white" d="M409.4,174.8c-4-.7-8.1-1.3-12.1-1.8,4.1.2,8.2.8,12.1,1.8Z"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ── MAIN PAGE ── -->
+  <div id="page-wrap">
+
+    <nav id="main-nav">
+      <div class="nav-left"><a href="#">Purpose</a></div>
+      <svg class="nav-logo" viewBox="85 150 340 230" xmlns="http://www.w3.org/2000/svg">
+        <path fill="white" d="M388.8,325.1c-46.6,13.2-91.9-31.9-87.3-79.3,1.4-14.8,8.2-28.2,17.9-39.1-10.9,6.9-21.4,15.3-31.9,25.6-17.8,17-33.9,35.9-52.6,52.2-39.8,36.5-91.5,50.7-144.3,40.7,86.4-15.8,107.5-39.6,166.3-100.3,17.3-16.7,36.6-31.7,59.1-41.1,25.6-10.9,53.7-13.9,80.9-10.8.1,0,.2,0,.4,0,4.1.5,8.1,1.1,12.1,1.8-19.7,5.5-37.1,15.3-52.3,28.1-13.9,12.1-26.7,26.8-28.7,45.3-2,36.5,25.5,67.5,60.3,77Z"/>
+        <path fill="white" d="M409.4,174.8c-4-.7-8.1-1.3-12.1-1.8,4.1.2,8.2.8,12.1,1.8Z"/>
+      </svg>
+      <div class="nav-right"><a href="#">Intellect</a></div>
+    </nav>
+
+    <div class="hero" id="hero">
+      <!-- Inline hero logo SVG — full logo design, white, no background -->
+      <svg class="hero-logo" viewBox="229 197 194 84" xmlns="http://www.w3.org/2000/svg">
+        <g>
+          <path fill="white" d="M237.6,242.2v-21.2h7v21.2c0,6.8,3.6,9.9,8.7,9.9s8.7-3.2,8.7-9.9v-21.2h7v21.2c0,6.7,3.7,9.9,8.7,9.9s8.7-3,8.7-9.9v-21.2h7v21.2c0,11.2-6.5,16.4-15.1,16.4s-10.4-2.5-12.9-7.3c-2.5,4.7-7.3,7.3-12.9,7.3-8.6,0-15.1-5.2-15.1-16.4Z"/>
+          <path fill="white" d="M299.4,239.6c0-11.5,8.2-19.6,19.8-19.6s19.5,7.9,19.5,19.6v18h-6.4v-8c-2.4,5.9-7.9,9-14.2,9-9.6,0-18.6-6.9-18.6-19ZM331.7,239.3c0-7.4-5-12.7-12.6-12.7s-12.6,5.3-12.6,12.7,5,12.7,12.6,12.7,12.6-5.3,12.6-12.7Z"/>
+          <path fill="white" d="M341.8,221h7.7l11.9,30.3,11.9-30.3h7.5l-15.3,36.6h-8.5l-15.3-36.6Z"/>
+          <path fill="white" d="M382.6,239.3c0-11.1,8.2-19.3,19.7-19.3s19.6,8.2,19.6,19.3v2.6h-31.9c1,6.5,5.9,10.2,12.3,10.2s8.1-1.5,10.2-4.7h7.8c-2.8,6.8-9.5,11.2-18,11.2s-19.7-8.1-19.7-19.3ZM414.5,235.6c-1.4-5.9-6.2-9-12.2-9s-10.7,3.3-12.1,9h24.2Z"/>
+          <path fill="white" d="M237.6,275.5c0-1.8,1.1-3,3-3s3,1.1,3,3v4.3h-1.1v-4.3c0-1.2-.7-1.9-1.9-1.9s-1.9.7-1.9,1.9v4.3h-1.1v-4.3Z"/>
+          <path fill="white" d="M250.4,272.7h5.3v1h-4.1v2h3.5v1h-3.5v2.1h4.1v1h-5.3v-7.2Z"/>
+          <path fill="white" d="M262.2,277v-4.3h1.1v4.3c0,1.2.6,1.9,1.9,1.9s1.9-.7,1.9-1.9v-4.3h1.1v4.3c0,1.8-1.1,3-3,3s-3-1.1-3-3Z"/>
+          <path fill="white" d="M275,272.7h3.1c1.8,0,2.5,1,2.5,2.3s-.5,1.9-1.6,2.2l1.9,2.7h-1.3l-1.7-2.6h-1.7v2.6h-1.1v-7.2ZM278.1,276.3c1,0,1.4-.5,1.4-1.3s-.4-1.3-1.4-1.3h-2v2.5h2Z"/>
+          <path fill="white" d="M286.9,276.3c0-2.1,1.6-3.7,3.8-3.7s3.8,1.6,3.8,3.7-1.6,3.7-3.8,3.7-3.8-1.6-3.8-3.7ZM293.4,276.3c0-1.6-1.1-2.7-2.7-2.7s-2.7,1.1-2.7,2.7,1.1,2.7,2.7,2.7,2.7-1.1,2.7-2.7Z"/>
+          <path fill="white" d="M302.4,273.7h-2.3v-1h5.7v1h-2.3v6.1h-1.1v-6.1Z"/>
+          <path fill="white" d="M312.3,272.7h5.3v1h-4.1v2h3.5v1h-3.5v2.1h4.1v1h-5.3v-7.2Z"/>
+          <path fill="white" d="M323.9,276.3c0-2.1,1.6-3.7,3.8-3.7s3.2,1.1,3.7,2.6h-1.2c-.4-1-1.3-1.6-2.5-1.6s-2.7,1.1-2.7,2.7,1.1,2.7,2.7,2.7,2.1-.6,2.5-1.6h1.2c-.4,1.6-1.8,2.6-3.7,2.6s-3.8-1.6-3.8-3.7Z"/>
+          <path fill="white" d="M338,272.7h1.1v3h4v-3h1.1v7.2h-1.1v-3.1h-4v3.1h-1.1v-7.2Z"/>
+          <path fill="white" d="M351,275.5c0-1.8,1.1-3,3-3s3,1.1,3,3v4.3h-1.1v-4.3c0-1.2-.7-1.9-1.9-1.9s-1.9.7-1.9,1.9v4.3h-1.1v-4.3Z"/>
+          <path fill="white" d="M363.4,276.3c0-2.1,1.6-3.7,3.8-3.7s3.8,1.6,3.8,3.7-1.6,3.7-3.8,3.7-3.8-1.6-3.8-3.7ZM369.9,276.3c0-1.6-1.1-2.7-2.7-2.7s-2.7,1.1-2.7,2.7,1.1,2.7,2.7,2.7,2.7-1.1,2.7-2.7Z"/>
+          <path fill="white" d="M377.6,272.7h1.1v6.1h4v1h-5.1v-7.2Z"/>
+          <path fill="white" d="M388.4,276.3c0-2.1,1.6-3.7,3.8-3.7s3.8,1.6,3.8,3.7-1.6,3.7-3.8,3.7-3.8-1.6-3.8-3.7ZM394.9,276.3c0-1.6-1.1-2.7-2.7-2.7s-2.7,1.1-2.7,2.7,1.1,2.7,2.7,2.7,2.7-1.1,2.7-2.7Z"/>
+          <path fill="white" d="M402.3,276.3c0-2.1,1.6-3.7,3.8-3.7s3.1,1,3.6,2.4h-1.2c-.4-.8-1.3-1.4-2.4-1.4-1.6,0-2.7,1.1-2.7,2.7s1.1,2.7,2.7,2.7,2.3-.7,2.6-1.8h-3v-1h4.2v.5c-.2,2-1.7,3.4-3.8,3.4s-3.8-1.6-3.8-3.7Z"/>
+          <path fill="white" d="M418,276.8l-2.8-4.1h1.3l2.1,3.1,2.1-3.1h1.3l-2.8,4.1v3.1h-1.1v-3.1Z"/>
+          <path fill="white" d="M198.8,280.4c-18.9,5.3-37.2-12.9-35.3-32.1.5-6,3.3-11.4,7.2-15.8-4.4,2.8-8.7,6.2-12.9,10.4-7.2,6.9-13.7,14.5-21.3,21.1-16.1,14.8-37.1,20.5-58.4,16.5,35-6.4,43.5-16,67.3-40.6,7-6.8,14.8-12.8,23.9-16.6,10.4-4.4,21.7-5.6,32.7-4.4,0,0,0,0,.1,0,1.6.2,3.3.4,4.9.7-8,2.2-15,6.2-21.2,11.4-5.6,4.9-10.8,10.8-11.6,18.3-.8,14.8,10.3,27.3,24.4,31.2Z"/>
+          <path fill="white" d="M207.2,219.6c-1.6-.3-3.3-.5-4.9-.7,1.6,0,3.3.3,4.9.7Z"/>
+        </g>
+      </svg>
+
+      <p class="hero-tagline" id="tagline">See it, experience it, yourself.</p>
+
+      <div class="social-row">
+        <a href="#" class="social-link" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="#" class="social-link" aria-label="X">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="mailto:hello@waveneurotech.com" class="social-link" id="email-link" aria-label="Email">
+          <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" class="stroke-icon"/><path d="m2 7 10 7 10-7" class="stroke-icon"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <footer id="main-footer">
+      © 2026 Wave Neurotechnology. All rights reserved.
+    </footer>
+
+  </div>
+
+  <!-- ── DEMO OVERLAY ── -->
+  <div id="demo-overlay">
+    <button class="demo-close" id="demo-close">✕ &nbsp;Close</button>
+    <div class="demo-word" id="demo-word">Demo</div>
+    <div class="demo-video-wrap" id="demo-video-wrap">
+      <!-- swap in your YouTube embed when ready: -->
+      <!-- <iframe src="https://www.youtube.com/embed/YOUR_ID?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe> -->
+      <div class="video-placeholder-inner">Video coming soon</div>
+    </div>
+  </div>
+
+  <script>
+    /* ── WAVE REVEAL ANIMATION ── */
+    const waveIntro  = document.getElementById('wave-intro');
+    const waveSvg    = document.getElementById('wave-svg');
+    const revealRect = document.getElementById('reveal-rect');
+
+    function animateWave(onComplete) {
+      waveSvg.style.opacity = '1';
+      const duration = 1300;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        revealRect.setAttribute('x', -500 + (500 * eased));
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          setTimeout(() => {
+            waveIntro.classList.add('fade-out');
+            setTimeout(onComplete, 1200);
+          }, 700);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* ── INTRO SEQUENCE ── */
+    const intro    = document.getElementById('intro');
+    const beginBtn = document.getElementById('begin-btn');
+    const pageWrap = document.getElementById('page-wrap');
+
+    beginBtn.addEventListener('click', () => {
+      intro.classList.add('fade-away');
+      setTimeout(() => {
+        waveIntro.classList.add('active');
+        animateWave(() => {
+          waveIntro.style.display = 'none';
+          pageWrap.classList.add('visible');
+          setTimeout(() => intro.remove(), 500);
+        });
+      }, 400);
+    });
+
+    /* ── DEMO ── */
+    const tagline   = document.getElementById('tagline');
+    const overlay   = document.getElementById('demo-overlay');
+    const demoWord  = document.getElementById('demo-word');
+    const videoWrap = document.getElementById('demo-video-wrap');
+    const closeBtn  = document.getElementById('demo-close');
+    const hero      = document.getElementById('hero');
+    const nav       = document.getElementById('main-nav');
+    const footer    = document.getElementById('main-footer');
+    const emailLink = document.getElementById('email-link');
+
+    function openDemo() {
+      hero.classList.add('fade-out');
+      nav.classList.add('hidden');
+      footer.classList.add('fade-out');
+      setTimeout(() => overlay.classList.add('visible'), 300);
+      setTimeout(() => demoWord.classList.add('expanded'), 500);
+      setTimeout(() => videoWrap.classList.add('visible'), 800);
+    }
+
+    function closeDemo() {
+      videoWrap.classList.remove('visible');
+      demoWord.classList.remove('expanded');
+      setTimeout(() => overlay.classList.remove('visible'), 300);
+      setTimeout(() => {
+        hero.classList.remove('fade-out');
+        nav.classList.remove('hidden');
+        footer.classList.remove('fade-out');
+      }, 700);
+      // email glow: 2s delay, builds in slowly, then pulses
+      setTimeout(() => {
+        emailLink.style.transition = 'box-shadow 1.5s ease, border-color 1.5s ease, color 0.3s';
+        emailLink.style.boxShadow = '0 0 16px rgba(255,255,255,0.8), 0 0 40px rgba(180,210,255,0.5)';
+        emailLink.style.borderColor = 'rgba(255,255,255,0.9)';
+        emailLink.style.color = '#fff';
+        setTimeout(() => {
+          emailLink.style.transition = '';
+          emailLink.style.boxShadow = '';
+          emailLink.style.borderColor = '';
+          emailLink.classList.add('email-glow');
+          setTimeout(() => {
+            emailLink.classList.remove('email-glow');
+            emailLink.style.color = '';
+          }, 6000);
+        }, 1600);
+      }, 2000);
+    }
+
+    tagline.addEventListener('click', openDemo);
+    closeBtn.addEventListener('click', closeDemo);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeDemo(); });
+  </script>
+
+</body>
+</html>
